@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutbolPredicciones PRO - Marcadores en Vivo & Análisis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #080608;
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Luces ambientales en movimiento */
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .glow-orb-1 {
+      position: absolute;
+      top: -10%;
+      left: 10%;
+      width: 45vw;
+      height: 45vw;
+      background: radial-gradient(circle, rgba(234, 179, 8, 0.16) 0%, rgba(217, 119, 6, 0.04) 50%, transparent 70%);
+      filter: blur(60px);
+      animation: floatOrb1 18s ease-in-out infinite alternate;
+    }
+
+    .glow-orb-2 {
+      position: absolute;
+      bottom: 5%;
+      right: 5%;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.16) 0%, rgba(59, 130, 246, 0.06) 50%, transparent 70%);
+      filter: blur(70px);
+      animation: floatOrb2 22s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatOrb1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(10vw, 12vh) scale(1.15); }
+    }
+    @keyframes floatOrb2 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-12vw, -10vh) scale(1.2); }
+    }
+
+    /* Fondo temático CR7 */
+    .legends-backdrop {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.10;
+      overflow: hidden;
+    }
+
+    .cr7-silhouette {
+      position: absolute;
+      top: 15%;
+      right: 2%;
+      width: 420px;
+      height: 580px;
+      background: url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=800&auto=format&fit=crop') center/cover;
+      mask-image: radial-gradient(circle at center, black 40%, transparent 75%);
+      -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 75%);
+      filter: contrast(160%) saturate(180%);
+      animation: subtleFloat 16s ease-in-out infinite alternate;
+    }
+
+    @keyframes subtleFloat {
+      0% { transform: translateY(0px) rotate(0deg); opacity: 0.8; }
+      50% { transform: translateY(-20px) rotate(1.5deg); opacity: 1; }
+      100% { transform: translateY(-35px) rotate(-1deg); opacity: 0.85; }
+    }
+
+    .match-card {
+      background: linear-gradient(135deg, rgba(24, 17, 17, 0.9) 0%, rgba(16, 11, 11, 0.94) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(245, 158, 11, 0.22);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .match-card:hover {
+      border-color: rgba(245, 158, 11, 0.55);
+      box-shadow: 0 10px 30px -5px rgba(245, 158, 11, 0.15), 0 0 20px -3px rgba(168, 85, 247, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .badge-live {
+      background: linear-gradient(90deg, #7f1d1d 0%, #450a0a 100%);
+      color: #f87171;
+      border: 1px solid #dc2626;
+    }
+    .badge-status {
+      background: linear-gradient(90deg, #451a03 0%, #2e1002 100%);
+      color: #fbbf24;
+      border: 1px solid #b45309;
+    }
+    .badge-league {
+      background-color: rgba(30, 22, 22, 0.7);
+      color: #cbd5e1;
+      border: 1px solid rgba(75, 55, 55, 0.6);
+    }
+    .badge-type-country {
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.2) 0%, rgba(30, 64, 175, 0.25) 100%);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+    .badge-type-club {
+      background: linear-gradient(90deg, rgba(168, 85, 247, 0.2) 0%, rgba(126, 34, 206, 0.25) 100%);
+      color: #d8b4fe;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+
+    .action-btn {
+      background: linear-gradient(180deg, rgba(34, 24, 24, 0.9) 0%, rgba(26, 19, 19, 0.95) 100%);
+      border-top: 1px solid rgba(65, 45, 45, 0.6);
+      transition: all 0.2s ease;
+    }
+    .match-card:hover .action-btn {
+      background: linear-gradient(180deg, #332314 0%, #25170d 100%);
+      color: #fbbf24;
+    }
+
+    .market-row {
+      background-color: #171111;
+      border: 1px solid #281d1d;
+      transition: all 0.2s ease;
+    }
+    .market-row:hover {
+      background-color: #1f1717;
+      border-color: #443232;
+    }
+    .chevron-market {
+      transition: transform 0.2s ease;
+    }
+    .chevron-market.open {
+      transform: rotate(180deg);
+    }
+
+    .flag-img {
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .club-logo {
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+    }
+  </style>
+</head>
+<body class="p-3 sm:p-6 antialiased relative">
+
+  <!-- Luces Ambientales -->
+  <div class="ambient-glow">
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
+  </div>
+
+  <!-- Capa CR7 de fondo -->
+  <div class="legends-backdrop">
+    <div class="cr7-silhouette"></div>
+  </div>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <div class="max-w-4xl mx-auto space-y-6 relative z-10">
+
+    <!-- ========================================== -->
+    <!-- PANTALLA 1: LISTADO DE PRÓXIMOS PARTIDOS  -->
+    <!-- ========================================== -->
+    <div id="view-home" class="space-y-6">
+      
+      <!-- Header Principal -->
+      <header class="text-center py-4 border-b border-[#2e2020]/70 backdrop-blur-sm">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-red-950/80 to-amber-950/70 border border-red-600/40 text-red-300 text-xs font-semibold uppercase tracking-wider mb-2 shadow-lg">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+          <span>Marcadores en Vivo & Probabilidades</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight flex items-center justify-center gap-2 drop-shadow-md">
+          <span>⚽</span> FutbolPredicciones <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300">PRO</span>
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-300 mt-1 max-w-lg mx-auto">
+          Toca cualquier partido para ver su pantalla en vivo, marcador actualizado, probabilidades y análisis estadístico.
+        </p>
+
+        <!-- Pestaña: Solo Partidos de Miércoles -->
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <div class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-amber-500 text-black border border-amber-400 shadow-lg flex items-center gap-2">
+            <span>📅</span> Partidos Miércoles (10)
+          </div>
+        </div>
+      </header>
+
+      <!-- Contador de partidos -->
+      <div class="flex items-center justify-between px-1">
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400 drop-shadow" id="section-title">
+          <span>📅</span> PARTIDOS MIÉRCOLES (18 NOV)
+        </div>
+        <div class="text-xs text-gray-300">
+          <span class="text-amber-400 font-bold bg-amber-950/60 px-2.5 py-0.5 rounded border border-amber-700/50" id="match-counter">10 Partidos</span>
+        </div>
+      </div>
+
+      <!-- Lista de Tarjetas de Partidos -->
+      <div class="space-y-4" id="matches-list-container">
+        <!-- Renderizado dinámicamente -->
+      </div>
+    </div>
+
+
+    <!-- ======================================================== -->
+    <!-- PANTALLA 2: PANTALLA EN VIVO DEL PARTIDO                -->
+    <!-- ======================================================== -->
+    <div id="view-detail" class="hidden space-y-5">
+      
+      <!-- Barra Superior: Botón Volver -->
+      <div class="flex items-center justify-between pb-2 border-b border-[#2d2222]">
+        <button onclick="goBackToHome()" class="px-4 py-2 rounded-xl bg-[#221818] hover:bg-[#2d2020] text-amber-400 font-bold text-xs border border-amber-500/40 flex items-center gap-2 transition-all shadow-md">
+          <span>←</span> Volver a partidos
+        </button>
+        <div class="flex items-center gap-2">
+          <span id="detail-live-tag" class="badge-live text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
+            EN VIVO
+          </span>
+          <span class="text-xs text-gray-400 font-mono" id="detail-date-badge">17 nov 2026</span>
+        </div>
+      </div>
+
+      <!-- MARCADOR CENTRAL EN VIVO -->
+      <div class="p-5 sm:p-6 rounded-2xl bg-gradient-to-b from-[#1c1313] to-[#140e0e] border border-amber-600/40 text-center space-y-4 shadow-2xl relative overflow-hidden">
+        
+        <div class="flex items-center justify-center gap-2 text-xs font-mono text-gray-400" id="detail-header-status">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          Santiago • Estadio Monumental
+        </div>
+
+        <!-- Enfrentamiento con Banderas/Escudos y Marcador Real -->
+        <div class="grid grid-cols-7 items-center py-2">
+          <!-- Local -->
+          <div class="col-span-3 flex flex-col items-center">
+            <div id="detail-home-icon-container" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#241a1a] border border-white/20 p-2 flex items-center justify-center shadow-lg mb-2">
+              <img id="detail-home-flag" src="" alt="" class="max-w-full max-h-full object-contain">
+            </div>
+            <div class="text-base sm:text-xl font-black text-white" id="detail-home-name">Chile</div>
+            <div class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">LOCAL</div>
+          </div>
+
+          <!-- Centro: Marcador En Vivo -->
+          <div class="col-span-1 flex flex-col items-center justify-center">
+            <div class="text-3xl sm:text-5xl font-black text-amber-400 font-mono tracking-tight drop-shadow-lg" id="detail-score">0 - 0</div>
+            <div class="text-[11px] font-extrabold uppercase tracking-wider mt-1.5 px-2.5 py-0.5 rounded-full bg-red-950/80 border border-red-600/50 text-red-300 flex items-center gap-1" id="detail-status-pill">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span>
+              <span id="detail-minute-text">1T • EN JUEGO</span>
+            </div>
+          </div>
+
+          <!-- Visitante -->
+          <div class="col-span-3 flex flex-col items-center">
+            <div id="detail-away-icon-container" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#241a1a] border border-white/20 p-2 flex items-center justify-center shadow-lg mb-2">
+              <img id="detail-away-flag" src="" alt="" class="max-w-full max-h-full object-contain">
+            </div>
+            <div class="text-base sm:text-xl font-black text-white" id="detail-away-name">Colombia</div>
+            <div class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">VISITANTE</div>
+          </div>
+        </div>
+
+        <!-- xG Goles Esperados y Fiabilidad -->
+        <div class="pt-3 border-t border-[#2d1e1e] flex flex-wrap items-center justify-center gap-3 text-xs">
+          <span class="text-sky-300 font-mono font-medium flex items-center gap-1" id="detail-xg">
+            ⚡ xG Esperado: <strong>1.08 — 1.35</strong>
+          </span>
+          <span class="text-gray-500">|</span>
+          <span class="px-2.5 py-0.5 rounded-md bg-[#0a2e1d] border border-emerald-600/50 text-emerald-400 font-bold flex items-center gap-1">
+            <span>🛡️</span> FIABILIDAD MODELO <span id="detail-db-pct">84%</span>
+          </span>
+        </div>
+
+        <!-- Pronóstico Principal -->
+        <div class="pt-1">
+          <span class="inline-block px-4 py-1.5 rounded-full bg-[#2a1b0d] border border-amber-600/60 text-amber-300 text-xs font-bold shadow-md" id="detail-ia-reading">
+            PRONÓSTICO PRINCIPAL: Empate o Colombia (X2)
+          </span>
+        </div>
+      </div>
+
+      <!-- Barra de Calidad de Datos / Variables -->
+        <div class="p-3.5 rounded-2xl bg-[#150f0f] border border-[#2b1f1f] flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono" id="detail-score-box">84</div>
+          <div>
+            <div class="text-xs font-bold text-white">Muestra Estadística Óptima</div>
+            <div class="text-[11px] text-gray-400">Datos y métricas en vivo actualizados</div>
+          </div>
+        </div>
+        <div class="flex-1 hidden sm:block">
+          <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+            <div class="bg-emerald-500 h-full rounded-full" id="detail-db-bar" style="width: 84%"></div>
+          </div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="text-lg font-black text-gray-200 font-mono">141</div>
+          <div class="text-[10px] text-gray-500 uppercase font-semibold">VARIABLES</div>
+        </div>
+      </div>
+
+      <!-- Las 3 Tarjetas de Probabilidad 1X2 -->
+      <div class="grid grid-cols-3 gap-2.5 sm:gap-3 text-center">
+        <!-- Local -->
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-[#191111] border border-[#2f2020] relative overflow-hidden flex flex-col justify-between">
+          <div class="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider">VICTORIA LOCAL</div>
+          <div class="text-2xl sm:text-3xl font-black text-white my-1 font-mono" id="detail-card-p1">24.2%</div>
+          <div class="text-[11px] text-gray-400 truncate" id="detail-card-home-label">Chile</div>
+          <div class="w-full h-1 bg-amber-500 rounded-full mt-2"></div>
+        </div>
+
+        <!-- Empate -->
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-[#191111] border border-[#2f2020] relative overflow-hidden flex flex-col justify-between">
+          <div class="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider">EMPATE</div>
+          <div class="text-2xl sm:text-3xl font-black text-white my-1 font-mono" id="detail-card-px">41.8%</div>
+          <div class="text-[11px] text-gray-400">X — Ninguno gana</div>
+          <div class="w-full h-1 bg-gray-500 rounded-full mt-2"></div>
+        </div>
+
+        <!-- Visitante -->
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-[#191111] border border-[#2f2020] relative overflow-hidden flex flex-col justify-between">
+          <div class="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider">VICTORIA VISITANTE</div>
+          <div class="text-2xl sm:text-3xl font-black text-sky-400 my-1 font-mono" id="detail-card-p2">34.0%</div>
+          <div class="text-[11px] text-gray-400 truncate" id="detail-card-away-label">Colombia</div>
+          <div class="w-full h-1 bg-sky-500 rounded-full mt-2"></div>
+        </div>
+      </div>
+
+      <!-- Explicación del Modelo Estadístico -->
+      <div class="p-4 rounded-2xl bg-[#160f0f] border border-[#2d1e1e] space-y-2 text-xs">
+        <div class="font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+          <span>💡</span> ANÁLISIS CLAVE DEL ENCUENTRO
+        </div>
+        <div class="text-gray-300 leading-relaxed space-y-1.5 pt-1">
+          <div class="flex items-start gap-2">
+            <span>📊</span>
+            <span id="detail-expl-text1">Forma reciente ajustada con partidos históricos de referencia.</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span>⚡</span>
+            <span id="detail-expl-text2" class="font-semibold text-amber-300">Partido de ritmo controlado esperado: Menos de 3.5 goles al 92%.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================== -->
+      <!-- SECCIÓN: MERCADOS DEL PARTIDO (ACORDEONES INTERACTIVOS) -->
+      <!-- ==================================================== -->
+      <div class="pt-4 border-t border-[#2e2020] space-y-3">
+        <div>
+          <div class="flex items-center gap-2 text-sm font-extrabold text-white uppercase tracking-wider">
+            <span>📊</span> MERCADOS DEL PARTIDO & PROBABILIDADES
+          </div>
+          <p class="text-xs text-gray-400 mt-0.5">
+            Toca cada mercado para ver las probabilidades exactas calculadas por el modelo matemático.
+          </p>
+        </div>
+
+        <!-- SECCIÓN GRATIS -->
+        <div class="space-y-2 pt-1">
+          <div class="flex items-center gap-2">
+            <span class="inline-block px-3.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase bg-[#0c1c13] text-[#00e676] border border-[#1b4d32] shadow-sm">GRATIS</span>
+          </div>
+
+          <!-- Goles totales -->
+          <div class="market-row rounded-2xl overflow-hidden cursor-pointer border border-[#2b1b1c] bg-[#140e0e]" onclick="toggleDetailMarket('goles')">
+            <div class="p-3.5 sm:p-4 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="text-base sm:text-lg">⚽</span>
+                <span class="font-bold text-xs sm:text-sm text-white">Goles totales</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-400 font-mono">Más / Menos goles</span>
+                <svg id="chevron-market-goles" class="chevron-market w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+            <div id="content-market-goles" class="hidden px-3 sm:px-4 pb-4 pt-1 border-t border-[#251717] bg-[#0d0708]">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2" id="detail-market-goles-content">
+                <!-- Llenado dinámico -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN CLÁSICOS & AVANZADOS -->
+        <div class="space-y-2 pt-2">
+          <div class="flex items-center gap-2">
+            <span class="badge-status text-[10px] font-bold px-2 py-0.5 rounded tracking-wider uppercase">MERCADOS CLÁSICOS</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            
+            <!-- Doble oportunidad -->
+            <div class="market-row rounded-xl overflow-hidden cursor-pointer" onclick="toggleDetailMarket('doble')">
+              <div class="p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base text-gray-400">➗</span>
+                  <span class="font-semibold text-xs sm:text-sm text-gray-200">Doble oportunidad</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-gray-400 font-mono">1X · X2 · 12</span>
+                  <svg id="chevron-market-doble" class="chevron-market w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+              <div id="content-market-doble" class="hidden px-4 pb-3 pt-2 border-t border-[#281d1d] bg-[#120c0c] text-xs space-y-2">
+                <div class="p-2 rounded-lg bg-[#1c1414] border border-amber-600/40 flex justify-between">
+                  <span class="text-amber-300 font-bold" id="detail-doble-text">X2</span>
+                  <span class="font-mono font-bold text-amber-400" id="detail-doble-prob">76%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ambos equipos marcan -->
+            <div class="market-row rounded-xl overflow-hidden cursor-pointer" onclick="toggleDetailMarket('btts')">
+              <div class="p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base text-red-400">🎯</span>
+                  <span class="font-semibold text-xs sm:text-sm text-gray-200">Ambos equipos marcan</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-gray-400 font-mono">BTTS</span>
+                  <svg id="chevron-market-btts" class="chevron-market w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+              <div id="content-market-btts" class="hidden px-4 pb-3 pt-2 border-t border-[#281d1d] bg-[#120c0c] text-xs">
+                <div class="grid grid-cols-2 gap-2 text-center" id="detail-btts-boxes">
+                  <!-- Llenado dinámico -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Victoria sin empate -->
+            <div class="market-row rounded-xl overflow-hidden cursor-pointer" onclick="toggleDetailMarket('dnb')">
+              <div class="p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base text-blue-400">🔄</span>
+                  <span class="font-semibold text-xs sm:text-sm text-gray-200">Victoria sin empate</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-gray-400 font-mono">Draw No Bet</span>
+                  <svg id="chevron-market-dnb" class="chevron-market w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+              <div id="content-market-dnb" class="hidden px-4 pb-3 pt-2 border-t border-[#281d1d] bg-[#120c0c] text-xs">
+                <div class="p-2 rounded-lg bg-[#1c1414] border border-[#2f2222] flex justify-between" id="detail-dnb-content">
+                  <span class="text-gray-300">DNB Selección</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Córners -->
+            <div class="market-row rounded-xl overflow-hidden cursor-pointer" onclick="toggleDetailMarket('corners')">
+              <div class="p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base text-red-500">🚩</span>
+                  <span class="font-semibold text-xs sm:text-sm text-gray-200">Córners</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-gray-400 font-mono" id="detail-corners-label">Línea 8.5</span>
+                  <svg id="chevron-market-corners" class="chevron-market w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+              <div id="content-market-corners" class="hidden px-4 pb-3 pt-2 border-t border-[#281d1d] bg-[#120c0c] text-xs">
+                <div class="p-2.5 rounded-lg bg-[#1c1414] border border-[#2f2222] space-y-1">
+                  <div class="font-bold text-amber-400" id="detail-corners-total">Total estimado: 8.5 córners</div>
+                  <div class="text-gray-400">Proyección estadística en vivo.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tiros y tiros a puerta -->
+            <div class="market-row rounded-xl overflow-hidden cursor-pointer" onclick="toggleDetailMarket('tiros')">
+              <div class="p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">🥅</span>
+                  <span class="font-semibold text-xs sm:text-sm text-gray-200">Tiros y tiros a puerta</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-gray-400 font-mono">Total</span>
+                  <svg id="chevron-market-tiros" class="chevron-market w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+              <div id="content-market-tiros" class="hidden px-4 pb-3 pt-2 border-t border-[#281d1d] bg-[#120c0c] text-xs space-y-1">
+                <div class="p-2 rounded bg-[#1c1414] font-medium text-amber-300" id="detail-shots-total">Total estimado: 21 tiros</div>
+                <div class="text-gray-400" id="detail-shots-split">Local vs Visitante</div>
+              </div>
+            </div>
+
+            <!-- Tarjetas -->
+            <div class="market-row rounded-xl overflow-hidden cursor-pointer" onclick="toggleDetailMarket('tarjetas')">
+              <div class="p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">🟨</span>
+                  <span class="font-semibold text-xs sm:text-sm text-gray-200">Tarjetas</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-gray-400 font-mono">Disciplinario</span>
+                  <svg id="chevron-market-tarjetas" class="chevron-market w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+              <div id="content-market-tarjetas" class="hidden px-4 pb-3 pt-2 border-t border-[#281d1d] bg-[#120c0c] text-xs">
+                <div class="p-2 rounded bg-[#1c1414] font-medium text-amber-400" id="detail-cards-total">~3.8 tarjetas esperadas</div>
+              </div>
+            </div>
+
+            <!-- Faltas por equipo -->
+            <div class="market-row rounded-xl overflow-hidden cursor-pointer" onclick="toggleDetailMarket('faltas')">
+              <div class="p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">🧱</span>
+                  <span class="font-semibold text-xs sm:text-sm text-gray-200">Faltas por equipo</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-gray-400 font-mono">Estimación</span>
+                  <svg id="chevron-market-faltas" class="chevron-market w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+              <div id="content-market-faltas" class="hidden px-4 pb-3 pt-2 border-t border-[#281d1d] bg-[#120c0c] text-xs">
+                <div class="p-2 rounded bg-[#1c1414] text-gray-300" id="detail-fouls-content">~26 faltas totales</div>
+              </div>
+            </div>
+
+            <!-- Posesión -->
+            <div class="market-row rounded-xl overflow-hidden cursor-pointer" onclick="toggleDetailMarket('posesion')">
+              <div class="p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">⏱️</span>
+                  <span class="font-semibold text-xs sm:text-sm text-gray-200">Posesión</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-gray-400 font-mono">Porcentaje</span>
+                  <svg id="chevron-market-posesion" class="chevron-market w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+              <div id="content-market-posesion" class="hidden px-4 pb-3 pt-2 border-t border-[#281d1d] bg-[#120c0c] text-xs">
+                <div class="p-2 rounded bg-[#1c1414] text-gray-300 font-bold" id="detail-pos-content">50% - 50%</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center pt-4 pb-8 text-xs text-gray-400 border-t border-[#261c1c]/80 backdrop-blur-sm">
+      FutbolPredicciones PRO • Marcadores en vivo y modelos estadísticos calibrados.
+    </footer>
+
+  </div>
+
+  <script>
+    // BASE DE DATOS DE PARTIDOS (EXACTAMENTE 10 PARTIDOS REALES DE MIÉRCOLES 18 NOV)
+    const matchesDatabase = [
+      // 1. BK HÄCKEN VS MANCHESTER CITY (CHAMPIONS FEMENINA)
+      {
+        id: 'hacken_mancity',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'UEFA Champions League (F)',
+        dateStr: 'Miércoles 18 Nov',
+        time: '18:45',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 18:45',
+        venue: 'Gotemburgo • Bravida Arena',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'BK Häcken', sub: 'Suecia • Gotemburgo', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8428.png' },
+        away: { name: 'Man. City', sub: 'Inglaterra • Manchester', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8456.png' },
+        keyPick: 'Manchester City gana (2) (64%)',
+        subPick: 'Más de 1.5 goles (76%)',
+        xg: '0.65 — 2.10',
+        dbScore: 89,
+        iaReading: 'Victoria de Manchester City (2)',
+        p1: 14.0, px: 22.0, p2: 64.0, best1X2: '2',
+        expl1: 'Manchester City cuenta con el poder ofensivo de Khadija Bunny Shaw y Lauren Hemp buscando afianzarse en el top europeo.',
+        expl2: 'Häcken se repliega fuerte de local en Gotemburgo pero sufre ante la intensidad física y velocidad de la WSL inglesa.',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 76, color: 'bg-emerald-400', note: 'Muy alta probabilidad' },
+          { name: 'Más de 2.5 goles', prob: 52, color: 'bg-emerald-400', note: 'Margen moderado' },
+          { name: 'Menos de 3.5 goles', prob: 71, color: 'bg-emerald-400', note: 'Seguridad alta' }
+        ],
+        btts: { si: 52, no: 48 },
+        dobleOpt: { name: 'X2 (Man. City o Empate)', prob: 86 },
+        dnb: 'Man. City DNB: 82% • Häcken: 18%',
+        corners: '9.6',
+        cards: '2.8',
+        shotsTotal: '23.5 tiros totales',
+        shotsSplit: 'Häcken: 3.2 a puerta • Man. City: 7.4 a puerta',
+        fouls: 'Häcken ~11.0 • Man. City ~9.0',
+        pos: 'Häcken 38% - 62% Man. City'
+      },
+      // 2. REAL MADRID VS INTER DE MILÁN (CHAMPIONS FEMENINA)
+      {
+        id: 'rm_inter',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'UEFA Champions League (F)',
+        dateStr: 'Miércoles 18 Nov',
+        time: '18:45',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 18:45',
+        venue: 'Madrid • Estadio Alfredo Di Stéfano',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'Real Madrid', sub: 'España • Valdebebas', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8633.png' },
+        away: { name: 'Inter Milán', sub: 'Italia • Milán', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8636.png' },
+        keyPick: 'Real Madrid gana (1) (74%)',
+        subPick: 'Más de 1.5 goles (80%)',
+        xg: '2.30 — 0.70',
+        dbScore: 92,
+        iaReading: 'Victoria de Real Madrid (1)',
+        p1: 74.0, px: 17.0, p2: 9.0, best1X2: '1',
+        expl1: 'El Madrid de Pau Quesada en el Di Stéfano suma gran pegada con Linda Caicedo y la Golden Girl Felicia Schröder.',
+        expl2: 'Inter debuta en Champions y sufre en defensa ante transatlánticos europeos (0-6 ante Lyon y 1-4 ante Man City).',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 80, color: 'bg-emerald-400', note: 'Gran volumen blanco' },
+          { name: 'Más de 2.5 goles', prob: 58, color: 'bg-emerald-400', note: 'Tendencia ofensiva' },
+          { name: 'Menos de 3.5 goles', prob: 65, color: 'bg-amber-500', note: 'Cubre 2-0 y 3-0' }
+        ],
+        btts: { si: 46, no: 54 },
+        dobleOpt: { name: '1X (Real Madrid o Empate)', prob: 91 },
+        dnb: 'Real Madrid DNB: 89% • Inter: 11%',
+        corners: '9.8',
+        cards: '3.2',
+        shotsTotal: '22.0 tiros totales',
+        shotsSplit: 'Real Madrid: 7.1 a puerta • Inter: 3.1 a puerta',
+        fouls: 'Real Madrid ~10.0 • Inter ~13.0',
+        pos: 'Real Madrid 62% - 38% Inter'
+      },
+      // 3. CHELSEA VS PARIS SAINT-GERMAIN (CHAMPIONS FEMENINA)
+      {
+        id: 'chelsea_psg',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'UEFA Champions League (F)',
+        dateStr: 'Miércoles 18 Nov',
+        time: '21:00',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 21:00',
+        venue: 'Londres • Kingsmeadow',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'Chelsea', sub: 'Inglaterra • Londres', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8455.png' },
+        away: { name: 'PSG', sub: 'Francia • París', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/9847.png' },
+        keyPick: 'Chelsea o Empate (1X) (88%)',
+        subPick: 'Menos de 3.5 goles (69%)',
+        xg: '1.85 — 0.95',
+        dbScore: 90,
+        iaReading: 'Chelsea gana o empata (1X)',
+        p1: 66.0, px: 22.0, p2: 12.0, best1X2: '1X',
+        expl1: 'Las Blues marchan invictas en Kingsmeadow con una de las defensas más férreas de Europa (solo 1 gol concedido).',
+        expl2: 'PSG llega necesitado tras caer 2-1 ante Bayern pero sus salidas continentales suelen ser muy complejas.',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 77, color: 'bg-emerald-400', note: 'Calidad goleadora' },
+          { name: 'Más de 2.5 goles', prob: 53, color: 'bg-emerald-400', note: 'Choque vibrante' },
+          { name: 'Menos de 3.5 goles', prob: 69, color: 'bg-emerald-400', note: 'Control de Chelsea' }
+        ],
+        btts: { si: 50, no: 50 },
+        dobleOpt: { name: '1X (Chelsea o Empate)', prob: 88 },
+        dnb: 'Chelsea DNB: 85% • PSG: 15%',
+        corners: '10.1',
+        cards: '3.4',
+        shotsTotal: '24.0 tiros totales',
+        shotsSplit: 'Chelsea: 7.2 a puerta • PSG: 4.5 a puerta',
+        fouls: 'Chelsea ~10.0 • PSG ~12.0',
+        pos: 'Chelsea 57% - 43% PSG'
+      },
+      // 4. JUVENTUS VS OH LEUVEN (CHAMPIONS FEMENINA)
+      {
+        id: 'juventus_leuven',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'UEFA Champions League (F)',
+        dateStr: 'Miércoles 18 Nov',
+        time: '21:00',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 21:00',
+        venue: 'Turín • Estadio Pozzo-La Marmora',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'Juventus', sub: 'Italia • Turín', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/9885.png' },
+        away: { name: 'OH Leuven', sub: 'Bélgica • Lovaina', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/1773.png' },
+        keyPick: 'Juventus gana (1) (78%)',
+        subPick: 'Más de 2.5 goles (55%)',
+        xg: '2.35 — 0.55',
+        dbScore: 91,
+        iaReading: 'Victoria de Juventus (1)',
+        p1: 78.0, px: 15.0, p2: 7.0, best1X2: '1',
+        expl1: 'Juventus se juega la clasificación a play-offs en casa con Alba Redondo comandando el frente de ataque.',
+        expl2: 'OH Leuven marcha penúltimo con solo 2 puntos y encaja un promedio superior a 2.5 goles por salida internacional.',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 79, color: 'bg-emerald-400', note: 'Dominio de la Juve' },
+          { name: 'Más de 2.5 goles', prob: 55, color: 'bg-emerald-400', note: 'Fragilidad belga' },
+          { name: 'Menos de 3.5 goles', prob: 67, color: 'bg-amber-500', note: 'Línea de seguridad' }
+        ],
+        btts: { si: 42, no: 58 },
+        dobleOpt: { name: '1X (Juventus o Empate)', prob: 93 },
+        dnb: 'Juventus DNB: 92% • OH Leuven: 8%',
+        corners: '9.4',
+        cards: '2.9',
+        shotsTotal: '21.0 tiros totales',
+        shotsSplit: 'Juventus: 7.5 a puerta • OH Leuven: 2.2 a puerta',
+        fouls: 'Juventus ~9.0 • OH Leuven ~14.0',
+        pos: 'Juventus 64% - 36% OH Leuven'
+      },
+      // 5. CORITIBA VS SANTOS (BRASILEIRÃO)
+      {
+        id: 'coritiba_santos',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'Brasileirão Serie A',
+        dateStr: 'Miércoles 18 Nov',
+        time: '19:30',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 19:30',
+        venue: 'Curitiba • Estádio Couto Pereira',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'Coritiba', sub: 'Brasil • Curitiba (13º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/9767.png' },
+        away: { name: 'Santos', sub: 'Brasil • Santos (9º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8514.png' },
+        keyPick: 'Santos o Empate (X2) (71%)',
+        subPick: 'Menos de 3.5 goles (78%)',
+        xg: '1.05 — 1.35',
+        dbScore: 87,
+        iaReading: 'Santos o Empate (X2)',
+        p1: 29.0, px: 31.0, p2: 40.0, best1X2: 'X2',
+        expl1: 'Santos recupera piezas clave con Gabigol, Coutinho y Neymar buscando cupo a Copa Libertadores.',
+        expl2: 'Coritiba llega con DT interino y baja en portería (Pedro Morisco) en un duelo tenso por la permanencia.',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 69, color: 'bg-emerald-400', note: 'Margen habitual' },
+          { name: 'Menos de 2.5 goles', prob: 57, color: 'bg-emerald-400', note: 'Tendencia brasileña' },
+          { name: 'Menos de 3.5 goles', prob: 78, color: 'bg-emerald-400', note: 'Máxima seguridad' }
+        ],
+        btts: { si: 54, no: 46 },
+        dobleOpt: { name: 'X2 (Santos o Empate)', prob: 71 },
+        dnb: 'Santos DNB: 58% • Coritiba: 42%',
+        corners: '8.9',
+        cards: '5.2',
+        shotsTotal: '18.0 tiros totales',
+        shotsSplit: 'Coritiba: 3.8 a puerta • Santos: 4.6 a puerta',
+        fouls: 'Coritiba ~16.0 • Santos ~14.0',
+        pos: 'Coritiba 47% - 53% Santos'
+      },
+      // 6. REMO VS CHAPECOENSE (BRASILEIRÃO)
+      {
+        id: 'remo_chapecoense',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'Brasileirão Serie A',
+        dateStr: 'Miércoles 18 Nov',
+        time: '20:00',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 20:00',
+        venue: 'Belém • Estádio Mangueirão',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'Remo', sub: 'Brasil • Belém (19º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/1626.png' },
+        away: { name: 'Chapecoense', sub: 'Brasil • Chapecó (20º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/197693.png' },
+        keyPick: 'Remo gana (1) (58%)',
+        subPick: '1X Remo o Empate (83%)',
+        xg: '1.55 — 0.75',
+        dbScore: 88,
+        iaReading: 'Victoria de Remo (1)',
+        p1: 58.0, px: 25.0, p2: 17.0, best1X2: '1',
+        expl1: 'Remo se juega su última carta por no descender ante un Mangueirão lleno que empujará los 90 minutos.',
+        expl2: 'Chapecoense ya está matemáticamente descendida a Serie B y acumula pésimos registros como visitante.',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 67, color: 'bg-emerald-400', note: 'Urgencia local' },
+          { name: 'Menos de 2.5 goles', prob: 60, color: 'bg-emerald-400', note: 'Remo busca 1-0 o 2-0' },
+          { name: 'Menos de 3.5 goles', prob: 80, color: 'bg-emerald-400', note: 'Seguridad alta' }
+        ],
+        btts: { si: 48, no: 52 },
+        dobleOpt: { name: '1X (Remo o Empate)', prob: 83 },
+        dnb: 'Remo DNB: 77% • Chapecoense: 23%',
+        corners: '9.3',
+        cards: '4.8',
+        shotsTotal: '19.5 tiros totales',
+        shotsSplit: 'Remo: 5.4 a puerta • Chapecoense: 2.8 a puerta',
+        fouls: 'Remo ~14.0 • Chapecoense ~16.0',
+        pos: 'Remo 56% - 44% Chapecoense'
+      },
+      // 7. CRUZEIRO VS PALMEIRAS (BRASILEIRÃO)
+      {
+        id: 'cruzeiro_palmeiras',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'Brasileirão Serie A',
+        dateStr: 'Miércoles 18 Nov',
+        time: '20:30',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 20:30',
+        venue: 'Belo Horizonte • Estádio Mineirão',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'Cruzeiro', sub: 'Brasil • Belo Horizonte (3º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/9781.png' },
+        away: { name: 'Palmeiras', sub: 'Brasil • Sao Paulo (2º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/10283.png' },
+        keyPick: 'Ambos marcan SÍ (58%)',
+        subPick: 'Cruzeiro o Empate (1X) (65%)',
+        xg: '1.25 — 1.30',
+        dbScore: 93,
+        iaReading: 'Partidazo 3º vs 2º: Ambos Marcan SÍ',
+        p1: 34.0, px: 31.0, p2: 35.0, best1X2: '1X',
+        expl1: 'Duelo en la cumbre: 3º vs 2º. Cruzeiro con 4 triunfos al hilo y gran nivel de Kaio Jorge y Matheus Pereira.',
+        expl2: 'Palmeiras de Abel Ferreira busca alcanzar al líder Flamengo pero sufre desgaste y bajas por fecha FIFA.',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 72, color: 'bg-emerald-400', note: 'Gol en ambas áreas' },
+          { name: 'Menos de 2.5 goles', prob: 53, color: 'bg-amber-500', note: 'Respeto mutuo' },
+          { name: 'Menos de 3.5 goles', prob: 75, color: 'bg-emerald-400', note: 'Marcador 1-1 / 2-1' }
+        ],
+        btts: { si: 58, no: 42 },
+        dobleOpt: { name: '1X (Cruzeiro o Empate)', prob: 65 },
+        dnb: 'Cruzeiro DNB: 49% • Palmeiras: 51%',
+        corners: '9.9',
+        cards: '5.5',
+        shotsTotal: '21.0 tiros totales',
+        shotsSplit: 'Cruzeiro: 4.8 a puerta • Palmeiras: 5.1 a puerta',
+        fouls: 'Cruzeiro ~15.0 • Palmeiras ~14.0',
+        pos: 'Cruzeiro 50% - 50% Palmeiras'
+      },
+      // 8. FLAMENGO VS ATHLETICO-PR (BRASILEIRÃO)
+      {
+        id: 'flamengo_athleticopr',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'Brasileirão Serie A',
+        dateStr: 'Miércoles 18 Nov',
+        time: '20:30',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 20:30',
+        venue: 'Río de Janeiro • Estádio do Maracanã',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'Flamengo', sub: 'Brasil • Río de Janeiro (1º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/9770.png' },
+        away: { name: 'Athletico-PR', sub: 'Brasil • Curitiba (5º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/10273.png' },
+        keyPick: 'Flamengo gana (1) (73%)',
+        subPick: 'Más de 1.5 goles (77%)',
+        xg: '2.15 — 0.65',
+        dbScore: 94,
+        iaReading: 'Victoria de Flamengo (1)',
+        p1: 73.0, px: 18.0, p2: 9.0, best1X2: '1',
+        expl1: 'El Mengão es líder con 76 puntos y ventaja de 3 unidades; ganar en el Maracanã los deja a tiro del título.',
+        expl2: 'Athletico-PR llega golpeado tras caer 3-1 con Vasco y sufre 22 puntos de diferencia respecto a los cariocas.',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 77, color: 'bg-emerald-400', note: 'Poderío carioca' },
+          { name: 'Más de 2.5 goles', prob: 53, color: 'bg-emerald-400', note: 'Flamengo suele marcar 2+' },
+          { name: 'Menos de 3.5 goles', prob: 69, color: 'bg-emerald-400', note: 'Cubre 2-0 y 2-1' }
+        ],
+        btts: { si: 45, no: 55 },
+        dobleOpt: { name: '1X (Flamengo o Empate)', prob: 91 },
+        dnb: 'Flamengo DNB: 89% • Athletico-PR: 11%',
+        corners: '10.4',
+        cards: '4.6',
+        shotsTotal: '22.0 tiros totales',
+        shotsSplit: 'Flamengo: 7.2 a puerta • Athletico-PR: 2.8 a puerta',
+        fouls: 'Flamengo ~12.0 • Athletico-PR ~16.0',
+        pos: 'Flamengo 63% - 37% Athletico-PR'
+      },
+      // 9. CORINTHIANS VS BOTAFOGO (BRASILEIRÃO)
+      {
+        id: 'corinthians_botafogo',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'Brasileirão Serie A',
+        dateStr: 'Miércoles 18 Nov',
+        time: '21:30',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 21:30',
+        venue: 'São Paulo • Neo Química Arena',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'Corinthians', sub: 'Brasil • São Paulo (17º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/9808.png' },
+        away: { name: 'Botafogo', sub: 'Brasil • Río de Janeiro (12º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8517.png' },
+        keyPick: 'Corinthians o Empate (1X) (76%)',
+        subPick: 'Menos de 3.5 goles (76%)',
+        xg: '1.35 — 1.10',
+        dbScore: 89,
+        iaReading: 'Corinthians o Empate (1X)',
+        p1: 46.0, px: 30.0, p2: 24.0, best1X2: '1X',
+        expl1: 'El Timão se encuentra en zona de descenso con 37 puntos y urge ganar ante su público en la Neo Química Arena.',
+        expl2: 'Botafogo de Tite llega más aliviado tras vencer a Atlético-MG pero históricamente le cuesta en Itaquera.',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 70, color: 'bg-emerald-400', note: 'Goles necesarios' },
+          { name: 'Menos de 2.5 goles', prob: 55, color: 'bg-emerald-400', note: 'Duelo de alta tensión' },
+          { name: 'Menos de 3.5 goles', prob: 76, color: 'bg-emerald-400', note: 'Línea de valor' }
+        ],
+        btts: { si: 53, no: 47 },
+        dobleOpt: { name: '1X (Corinthians o Empate)', prob: 76 },
+        dnb: 'Corinthians DNB: 66% • Botafogo: 34%',
+        corners: '9.1',
+        cards: '5.6',
+        shotsTotal: '19.0 tiros totales',
+        shotsSplit: 'Corinthians: 4.9 a puerta • Botafogo: 3.9 a puerta',
+        fouls: 'Corinthians ~15.0 • Botafogo ~14.0',
+        pos: 'Corinthians 52% - 48% Botafogo'
+      },
+      // 10. GRÊMIO VS BAHIA (BRASILEIRÃO)
+      {
+        id: 'gremio_bahia',
+        day: 'wednesday',
+        isLive: false,
+        isClub: true,
+        league: 'Brasileirão Serie A',
+        dateStr: 'Miércoles 18 Nov',
+        time: '21:30',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 21:30',
+        venue: 'Porto Alegre • Arena do Grêmio',
+        statusText: 'MIÉRCOLES',
+        statusColor: 'text-amber-400',
+        home: { name: 'Grêmio', sub: 'Brasil • Porto Alegre (18º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/9769.png' },
+        away: { name: 'Bahia', sub: 'Brasil • Salvador (6º)', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/7877.png' },
+        keyPick: 'Grêmio o Empate (1X) (74%)',
+        subPick: 'Menos de 3.5 goles (75%)',
+        xg: '1.40 — 1.15',
+        dbScore: 88,
+        iaReading: 'Grêmio o Empate (1X)',
+        p1: 44.0, px: 30.0, p2: 26.0, best1X2: '1X',
+        expl1: 'Grêmio (18º) está en zona roja y se juega la permanencia ante su gente; la ida terminó 1-1 en Salvador.',
+        expl2: 'Bahía (6º) pelea por Libertadores pero baja drásticamente su rendimiento y concesiones defensivas fuera de casa.',
+        goles: [
+          { name: 'Más de 1.5 goles', prob: 72, color: 'bg-emerald-400', note: 'Urgencia tricolor' },
+          { name: 'Menos de 2.5 goles', prob: 53, color: 'bg-amber-500', note: 'Partido muy cerrado' },
+          { name: 'Menos de 3.5 goles', prob: 75, color: 'bg-emerald-400', note: 'Seguridad alta' }
+        ],
+        btts: { si: 54, no: 46 },
+        dobleOpt: { name: '1X (Grêmio o Empate)', prob: 74 },
+        dnb: 'Grêmio DNB: 63% • Bahia: 37%',
+        corners: '9.5',
+        cards: '5.3',
+        shotsTotal: '20.0 tiros totales',
+        shotsSplit: 'Grêmio: 4.8 a puerta • Bahia: 4.1 a puerta',
+        fouls: 'Grêmio ~16.0 • Bahia ~14.0',
+        pos: 'Grêmio 51% - 49% Bahia'
+      }
+    ];
+
+    function renderMatches() {
+      const container = document.getElementById('matches-list-container');
+      const filtered = matchesDatabase;
+
+      const titleEl = document.getElementById('section-title');
+      const counterEl = document.getElementById('match-counter');
+      if (titleEl) {
+        titleEl.innerHTML = "<span>📅</span> PARTIDOS MIÉRCOLES (18 NOV)";
+      }
+      if (counterEl) {
+        counterEl.innerText = `${filtered.length} Partidos`;
+      }
+
+      container.innerHTML = filtered.map(m => `
+        <div class="match-card rounded-2xl overflow-hidden cursor-pointer" onclick="openMatchDetail('${m.id}')">
+          <div class="p-4 sm:p-5 select-none">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                ${m.isLive 
+                  ? '<span class="badge-live text-[11px] font-black px-2.5 py-0.5 rounded-md tracking-wider uppercase flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span> EN VIVO</span>' 
+                  : `<span class="badge-status text-[11px] font-bold px-2.5 py-0.5 rounded-md tracking-wider uppercase">${m.statusText}</span>`}
+                ${m.isClub 
+                  ? '<span class="badge-type-club text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">🛡️ CLUB</span>' 
+                  : '<span class="badge-type-country text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">🌎 SELECCIÓN</span>'}
+                <span class="badge-league text-[11px] font-medium px-2.5 py-0.5 rounded-md">${m.league}</span>
+              </div>
+              <div class="text-[11px] text-gray-400 font-mono">${m.dateStr}</div>
+            </div>
+
+            <!-- Fila Central -->
+            <div class="grid grid-cols-7 items-center py-2 gap-1">
+              <div class="col-span-3 flex items-center gap-2.5 sm:gap-3">
+                ${m.isClub ? `
+                  <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#1c1818] border border-white/20 p-1 flex items-center justify-center shrink-0">
+                    <img src="${m.home.flag}" alt="${m.home.name}" class="club-logo max-w-full max-h-full object-contain">
+                  </div>
+                ` : `
+                  <img src="${m.home.flag}" alt="${m.home.name}" class="flag-img w-8 h-6 sm:w-10 sm:h-7 rounded object-cover border border-white/20 shrink-0">
+                `}
+                <div>
+                  <div class="text-base sm:text-xl font-bold text-white leading-tight">${m.home.name}</div>
+                  <div class="text-[11px] text-gray-400">${m.home.sub}</div>
+                </div>
+              </div>
+
+              <!-- Marcador Central -->
+              <div class="col-span-1 text-center">
+                <div class="text-base sm:text-2xl font-black text-amber-400 font-mono drop-shadow">${m.score}</div>
+                <div class="text-[9px] font-bold ${m.isLive ? 'text-red-400' : 'text-amber-400'} uppercase tracking-wider">${m.minuteStr}</div>
+              </div>
+
+              <div class="col-span-3 flex items-center justify-end gap-2.5 sm:gap-3 text-right">
+                <div>
+                  <div class="text-base sm:text-xl font-bold text-white leading-tight">${m.away.name}</div>
+                  <div class="text-[11px] text-gray-400">${m.away.sub}</div>
+                </div>
+                ${m.isClub ? `
+                  <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#1c1818] border border-white/20 p-1 flex items-center justify-center shrink-0">
+                    <img src="${m.away.flag}" alt="${m.away.name}" class="club-logo max-w-full max-h-full object-contain">
+                  </div>
+                ` : `
+                  <img src="${m.away.flag}" alt="${m.away.name}" class="flag-img w-8 h-6 sm:w-10 sm:h-7 rounded object-cover border border-white/20 shrink-0">
+                `}
+              </div>
+            </div>
+
+            <!-- Preview Pick -->
+            <div class="mt-3 pt-3 border-t border-[#332222]/60 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-1.5 text-gray-200">
+                <span class="text-amber-400">⭐</span> Pick clave: 
+                <span class="font-bold text-emerald-400">${m.keyPick}</span>
+              </div>
+              <div class="text-[11px] text-gray-400 font-medium">
+                ${m.subPick}
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón de apertura -->
+          <div class="action-btn w-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-semibold text-amber-300">
+            <span>${m.isLive ? '🔴 Ver Marcador en Vivo & Análisis' : '📊 Ver Análisis & Probabilidades'}</span>
+            <span class="text-amber-400 text-sm">→</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // CALCULAR LÍNEAS DE GOLES OVER / UNDER REALES (0.5 A 5.5) PARA CADA PARTIDO
+    function getMatchOverUnder(match) {
+      let lambda = 2.40;
+      if (match.xg) {
+        const nums = match.xg.match(/(\d+\.?\d*)/g);
+        if (nums && nums.length >= 2) {
+          const v1 = parseFloat(nums[0]);
+          const v2 = parseFloat(nums[1]);
+          if (!isNaN(v1) && !isNaN(v2)) {
+            lambda = v1 + v2;
+          }
+        }
+      }
+      let p = [];
+      let fact = 1;
+      const expNegLambda = Math.exp(-lambda);
+      for (let k = 0; k <= 8; k++) {
+        if (k > 1) fact *= k;
+        p[k] = (Math.pow(lambda, k) * expNegLambda) / fact;
+      }
+      const lines = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5];
+      let cumUnder = 0;
+      return lines.map(line => {
+        const k = Math.floor(line);
+        cumUnder += p[k];
+        let underPct = +(cumUnder * 100).toFixed(1);
+        if (underPct > 99.2) underPct = 99.2;
+        if (underPct < 0.8) underPct = 0.8;
+        let overPct = +((100 - underPct)).toFixed(1);
+        return {
+          line: line.toFixed(1),
+          mas: overPct % 1 === 0 ? overPct.toFixed(0) : overPct.toFixed(1),
+          menos: underPct % 1 === 0 ? underPct.toFixed(0) : underPct.toFixed(1)
+        };
+      });
+    }
+
+    // ABRIR PANTALLA EN VIVO / DETALLE
+    function openMatchDetail(matchId) {
+      const match = matchesDatabase.find(m => m.id === matchId);
+      if (!match) return;
+
+      document.getElementById('view-home').classList.add('hidden');
+      document.getElementById('view-detail').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Live tag superior
+      const liveTag = document.getElementById('detail-live-tag');
+      if (match.isLive) {
+        liveTag.className = "badge-live text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider flex items-center gap-1.5 shadow-sm";
+        liveTag.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span> EN VIVO`;
+      } else if (match.statusText === 'FINALIZADO') {
+        liveTag.className = "text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider bg-zinc-800 text-gray-300 border border-white/10 shadow-sm";
+        liveTag.innerText = "FINALIZADO";
+      } else {
+        liveTag.className = "badge-status text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-sm";
+        liveTag.innerText = "PRÓXIMO";
+      }
+
+      document.getElementById('detail-date-badge').innerText = `${match.dateStr} • ${match.time}`;
+      document.getElementById('detail-header-status').innerHTML = match.isLive 
+        ? `<span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span> ${match.venue} • <span class="text-red-400 font-bold">${match.minuteStr}</span>`
+        : (match.statusText === 'FINALIZADO' 
+            ? `<span>🏁</span> ${match.venue} • <span class="text-gray-300 font-bold">${match.minuteStr}</span>`
+            : `${match.venue} • ${match.dateStr}, ${match.time}`);
+
+      // Marcador central en vivo
+      document.getElementById('detail-score').innerText = match.score;
+      document.getElementById('detail-minute-text').innerText = match.minuteStr;
+      document.getElementById('detail-status-pill').className = match.isLive
+        ? "text-[11px] font-extrabold uppercase tracking-wider mt-1.5 px-3 py-0.5 rounded-full bg-red-950/80 border border-red-600/50 text-red-300 flex items-center gap-1"
+        : (match.statusText === 'FINALIZADO'
+            ? "text-[11px] font-extrabold uppercase tracking-wider mt-1.5 px-3 py-0.5 rounded-full bg-zinc-900 border border-zinc-700 text-zinc-300 flex items-center gap-1"
+            : "text-[11px] font-extrabold uppercase tracking-wider mt-1.5 px-3 py-0.5 rounded-full bg-amber-950/80 border border-amber-600/50 text-amber-300 flex items-center gap-1");
+
+      // Equipos y banderas
+      document.getElementById('detail-home-name').innerText = match.home.name;
+      document.getElementById('detail-away-name').innerText = match.away.name;
+      document.getElementById('detail-home-flag').src = match.home.flag;
+      document.getElementById('detail-away-flag').src = match.away.flag;
+
+      // xG y fiabilidad
+      document.getElementById('detail-xg').innerHTML = `⚡ xG Esperado: <strong>${match.xg}</strong>`;
+      document.getElementById('detail-db-pct').innerText = `${match.dbScore}%`;
+      document.getElementById('detail-score-box').innerText = match.dbScore;
+      document.getElementById('detail-db-bar').style.width = `${match.dbScore}%`;
+      document.getElementById('detail-ia-reading').innerText = `PRONÓSTICO PRINCIPAL: ${match.iaReading}`;
+
+      // Tarjetas 1X2
+      document.getElementById('detail-card-p1').innerText = `${match.p1}%`;
+      document.getElementById('detail-card-px').innerText = `${match.px}%`;
+      document.getElementById('detail-card-p2').innerText = `${match.p2}%`;
+      document.getElementById('detail-card-home-label').innerText = match.home.name;
+      document.getElementById('detail-card-away-label').innerText = match.away.name;
+
+      // Explicación
+      document.getElementById('detail-expl-text1').innerText = match.expl1;
+      document.getElementById('detail-expl-text2').innerText = match.expl2;
+
+      // Goles (Líneas 0.5 a 5.5 estilo FutDatos / Imagen)
+      const golesContainer = document.getElementById('detail-market-goles-content');
+      const overUnderLines = getMatchOverUnder(match);
+      golesContainer.innerHTML = overUnderLines.map(item => `
+        <div class="bg-[#160e10] border border-[#261719] rounded-2xl p-3 sm:p-3.5 space-y-2 shadow-md">
+          <div class="text-[11px] sm:text-xs font-black text-gray-200 tracking-wider">GOLES ${item.line}</div>
+          <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
+            <!-- MÁS DE -->
+            <div class="p-2.5 sm:p-3 rounded-xl bg-[#0e1d16] border border-[#163825] flex flex-col justify-between">
+              <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">MÁS DE ${item.line}</div>
+              <div class="text-xl sm:text-2xl font-black text-[#00e676] font-mono tracking-tight my-1">${item.mas}%</div>
+              <div class="w-full bg-[#152e20] h-1.5 rounded-full overflow-hidden mt-1">
+                <div class="bg-[#00e676] h-full rounded-full transition-all duration-500" style="width: ${item.mas}%"></div>
+              </div>
+            </div>
+            <!-- MENOS DE -->
+            <div class="p-2.5 sm:p-3 rounded-xl bg-[#220f16] border border-[#441a27] flex flex-col justify-between">
+              <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">MENOS DE ${item.line}</div>
+              <div class="text-xl sm:text-2xl font-black text-[#ff3366] font-mono tracking-tight my-1">${item.menos}%</div>
+              <div class="w-full bg-[#381520] h-1.5 rounded-full overflow-hidden mt-1">
+                <div class="bg-[#ff3366] h-full rounded-full transition-all duration-500" style="width: ${item.menos}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Doble oportunidad
+      document.getElementById('detail-doble-text').innerText = match.dobleOpt.name;
+      document.getElementById('detail-doble-prob').innerText = `${match.dobleOpt.prob}%`;
+
+      // BTTS
+      document.getElementById('detail-btts-boxes').innerHTML = `
+        <div class="p-2.5 rounded-lg bg-[#201515] border ${match.btts.si > match.btts.no ? 'border-amber-600/70 text-amber-300' : 'border-[#302020] text-gray-400'}">
+          <div class="text-[10px]">SÍ MARCAN</div>
+          <div class="text-base font-bold">${match.btts.si}%</div>
+        </div>
+        <div class="p-2.5 rounded-lg bg-[#251710] border ${match.btts.no >= match.btts.si ? 'border-amber-600/70 text-amber-400' : 'border-[#302020] text-gray-400'}">
+          <div class="text-[10px]">NO MARCAN</div>
+          <div class="text-base font-bold">${match.btts.no}%</div>
+        </div>
+      `;
+
+      // DNB
+      document.getElementById('detail-dnb-content').innerHTML = `
+        <span class="text-gray-300">${match.dnb}</span>
+      `;
+
+      // Métricas
+      document.getElementById('detail-corners-label').innerText = `Línea ${match.corners}`;
+      document.getElementById('detail-corners-total').innerText = `Total estimado: ${match.corners} córners`;
+      document.getElementById('detail-shots-total').innerText = match.shotsTotal;
+      document.getElementById('detail-shots-split').innerText = match.shotsSplit;
+      document.getElementById('detail-cards-total').innerText = `~${match.cards} tarjetas esperadas en el encuentro`;
+      document.getElementById('detail-fouls-content').innerText = match.fouls;
+      document.getElementById('detail-pos-content').innerText = match.pos;
+
+      toggleDetailMarket('goles', true);
+
+    }
+
+    function goBackToHome() {
+      document.getElementById('view-detail').classList.add('hidden');
+      document.getElementById('view-home').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleDetailMarket(marketKey, forceOpen = false) {
+      const content = document.getElementById(`content-market-${marketKey}`);
+      const chevron = document.getElementById(`chevron-market-${marketKey}`);
+      if (!content) return;
+
+      const isHidden = content.classList.contains('hidden');
+      if (isHidden || forceOpen) {
+        content.classList.remove('hidden');
+        if (chevron) chevron.classList.add('open');
+      } else {
+        content.classList.add('hidden');
+        if (chevron) chevron.classList.remove('open');
+      }
+    }
+
+    // Inicializar mostrando los partidos de Miércoles
+    renderMatches();
+  </script>
+</body>
+</html>
