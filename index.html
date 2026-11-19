@@ -191,10 +191,10 @@
           Toca cualquier partido para ver su pantalla en vivo, marcador actualizado, probabilidades y análisis estadístico.
         </p>
 
-        <!-- Pestaña: Solo Partidos de Jueves -->
+        <!-- Pestaña: Partidos Próximos -->
         <div class="flex items-center justify-center gap-2 mt-4">
           <div class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-amber-500 text-black border border-amber-400 shadow-lg flex items-center gap-2">
-            <span>📅</span> Partidos Jueves (10)
+            <span>📅</span> Partidos Próximos (10)
           </div>
         </div>
       </header>
@@ -202,7 +202,7 @@
       <!-- Contador de partidos -->
       <div class="flex items-center justify-between px-1">
         <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400 drop-shadow" id="section-title">
-          <span>📅</span> PARTIDOS JUEVES (19 NOV)
+          <span>📅</span> PARTIDOS PRÓXIMOS (10)
         </div>
         <div class="text-xs text-gray-300">
           <span class="text-amber-400 font-bold bg-amber-950/60 px-2.5 py-0.5 rounded border border-amber-700/50" id="match-counter">10 Partidos</span>
@@ -565,7 +565,7 @@
   </div>
 
   <script>
-    // BASE DE DATOS DE PARTIDOS (EXACTAMENTE 10 PARTIDOS REALES DE JUEVES 19 NOV)
+    // BASE DE DATOS DE PARTIDOS (EXACTAMENTE 10 PARTIDOS PROFESIONALES DE PRIMERA LÍNEA)
     const matchesDatabase = [
       // 1. SÃO PAULO VS FLUMINENSE (BRASILEIRÃO)
       {
@@ -840,122 +840,122 @@
         fouls: 'Austria Viena ~12.0 • Bayern ~8.0',
         pos: 'Austria Viena 32% - 68% Bayern'
       },
-      // 8. ARGENTINA SUB-17 VS AUSTRALIA SUB-17 (MUNDIAL CATAR 2026)
+      // 8. PARIS FC VS HB KØGE (CHAMPIONS FEMENINA)
       {
-        id: 'argentina_australia_u17',
+        id: 'parisfc_koge',
         day: 'thursday',
         isLive: false,
-        isClub: false,
-        league: 'Mundial Sub-17 (FIFA)',
+        isClub: true,
+        league: 'UEFA Champions League (F)',
         dateStr: 'Jueves 19 Nov',
-        time: '10:00',
+        time: '18:45',
         score: 'VS',
-        minuteStr: 'PRÓXIMO • 10:00',
-        venue: 'Al Rayyan • Aspire Zone',
+        minuteStr: 'PRÓXIMO • 18:45',
+        venue: 'París • Stade Sébastien Charléty',
         statusText: 'JUEVES',
         statusColor: 'text-amber-400',
-        home: { name: 'Argentina Sub-17', sub: 'Selección • Grupo C', flag: 'https://flagcdn.com/w80/ar.png' },
-        away: { name: 'Australia Sub-17', sub: 'Selección • Grupo C', flag: 'https://flagcdn.com/w80/au.png' },
-        keyPick: 'Argentina Sub-17 gana (1) (68%)',
-        subPick: 'Más de 1.5 goles (77%)',
-        xg: '2.10 — 0.75',
-        dbScore: 88,
-        iaReading: 'Victoria de Argentina Sub-17 (1)',
-        p1: 68.0, px: 20.0, p2: 12.0, best1X2: '1',
-        expl1: 'Debut mundialista en Catar. La Albiceleste juvenil cuenta con un proceso de AFA con gran caudal ofensivo.',
-        expl2: 'Australia destaca en lo físico pero sufre en la marca ante gambeta y asociaciones cortas.',
+        home: { name: 'Paris FC', sub: 'Francia • París', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/6379.png' },
+        away: { name: 'HB Køge', sub: 'Dinamarca • Køge', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8289.png' },
+        keyPick: 'Paris FC gana (1) (75%)',
+        subPick: 'Más de 1.5 goles (79%)',
+        xg: '2.15 — 0.65',
+        dbScore: 90,
+        iaReading: 'Victoria clara de Paris FC (1)',
+        p1: 75.0, px: 16.5, p2: 8.5, best1X2: '1',
+        expl1: 'Paris FC cuenta con el poder ofensivo de Clara Mateo y Gaëtane Thiney con gran ritmo en Charléty.',
+        expl2: 'HB Køge sufre mucho defensivamente como visitante en competencias europeas.',
         goles: [
-          { name: 'Más de 1.5 goles', prob: 77, color: 'bg-emerald-400', note: 'Calidad técnica' },
-          { name: 'Más de 2.5 goles', prob: 54, color: 'bg-emerald-400', note: 'Juego abierto' },
-          { name: 'Menos de 3.5 goles', prob: 70, color: 'bg-amber-500', note: 'Seguridad' }
+          { name: 'Más de 1.5 goles', prob: 79, color: 'bg-emerald-400', note: 'Ritmo favorable' },
+          { name: 'Más de 2.5 goles', prob: 58, color: 'bg-emerald-400', note: 'Ataque parisino' },
+          { name: 'Menos de 3.5 goles', prob: 69, color: 'bg-amber-500', note: 'Margen de contención' }
         ],
-        btts: { si: 47, no: 53 },
-        dobleOpt: { name: '1X (Argentina o Empate)', prob: 88 },
-        dnb: 'Argentina DNB: 85% • Australia: 15%',
-        corners: '9.4',
-        cards: '3.6',
-        shotsTotal: '21.0 tiros totales',
-        shotsSplit: 'Argentina: 6.8 a puerta • Australia: 3.1 a puerta',
-        fouls: 'Argentina ~10.0 • Australia ~14.0',
-        pos: 'Argentina 61% - 39% Australia'
+        btts: { si: 41, no: 59 },
+        dobleOpt: { name: '1X (Paris FC o Empate)', prob: 91 },
+        dnb: 'Paris FC DNB: 89% • Køge: 11%',
+        corners: '9.8',
+        cards: '2.3',
+        shotsTotal: '21.5 tiros totales',
+        shotsSplit: 'Paris FC: 6.9 a puerta • Køge: 2.3 a puerta',
+        fouls: 'Paris FC ~9.0 • Køge ~11.0',
+        pos: 'Paris FC 62% - 38% Køge'
       },
-      // 9. ARABIA SAUDITA SUB-17 VS URUGUAY SUB-17 (MUNDIAL CATAR 2026)
+      // 9. BAYERN MÚNICH VS 1. FC KÖLN (BUNDESLIGA)
       {
-        id: 'arabia_uruguay_u17',
-        day: 'thursday',
+        id: 'bayern_koln',
+        day: 'friday',
         isLive: false,
-        isClub: false,
-        league: 'Mundial Sub-17 (FIFA)',
-        dateStr: 'Jueves 19 Nov',
-        time: '08:00',
+        isClub: true,
+        league: 'Bundesliga Alemania',
+        dateStr: 'Viernes 20 Nov',
+        time: '20:30',
         score: 'VS',
-        minuteStr: 'PRÓXIMO • 08:00',
-        venue: 'Al Rayyan • Aspire Zone',
-        statusText: 'JUEVES',
-        statusColor: 'text-amber-400',
-        home: { name: 'Arabia Saudita Sub-17', sub: 'Selección • Grupo D', flag: 'https://flagcdn.com/w80/sa.png' },
-        away: { name: 'Uruguay Sub-17', sub: 'Selección • Grupo D', flag: 'https://flagcdn.com/w80/uy.png' },
-        keyPick: 'Uruguay Sub-17 gana o empata (X2) (82%)',
-        subPick: 'Menos de 3.5 goles (75%)',
-        xg: '0.85 — 1.65',
-        dbScore: 87,
-        iaReading: 'Uruguay Sub-17 o Empate (X2)',
-        p1: 18.0, px: 26.0, p2: 56.0, best1X2: 'X2',
-        expl1: 'Uruguay presenta la tradicional garra y presión alta en mediocampo con delantera potente.',
-        expl2: 'Arabia Saudita conoce el clima del Golfo pero sufre en balones detenidos: Menos de 3.5 goles al 75%.',
-        goles: [
-          { name: 'Menos de 2.5 goles', prob: 53, color: 'bg-emerald-400', note: 'Choque táctico' },
-          { name: 'Menos de 3.5 goles', prob: 75, color: 'bg-emerald-400', note: 'Máxima seguridad' },
-          { name: 'Más de 1.5 goles', prob: 72, color: 'bg-amber-500', note: 'Margen habitual' }
-        ],
-        btts: { si: 49, no: 51 },
-        dobleOpt: { name: 'X2 (Uruguay o Empate)', prob: 82 },
-        dnb: 'Uruguay DNB: 76% • Arabia: 24%',
-        corners: '8.8',
-        cards: '4.2',
-        shotsTotal: '19.0 tiros totales',
-        shotsSplit: 'Arabia: 3.2 a puerta • Uruguay: 5.4 a puerta',
-        fouls: 'Arabia ~13.0 • Uruguay ~15.0',
-        pos: 'Arabia 44% - 56% Uruguay'
-      },
-      // 10. NUEVA CALEDONIA SUB-17 VS ECUADOR SUB-17 (MUNDIAL CATAR 2026)
-      {
-        id: 'caledonia_ecuador_u17',
-        day: 'thursday',
-        isLive: false,
-        isClub: false,
-        league: 'Mundial Sub-17 (FIFA)',
-        dateStr: 'Jueves 19 Nov',
-        time: '07:00',
-        score: 'VS',
-        minuteStr: 'PRÓXIMO • 07:00',
-        venue: 'Al Rayyan • Aspire Zone',
-        statusText: 'JUEVES',
-        statusColor: 'text-amber-400',
-        home: { name: 'N. Caledonia Sub-17', sub: 'Selección • Grupo B', flag: 'https://flagcdn.com/w80/nc.png' },
-        away: { name: 'Ecuador Sub-17', sub: 'Selección • Grupo B', flag: 'https://flagcdn.com/w80/ec.png' },
-        keyPick: 'Ecuador Sub-17 gana (2) (86%)',
-        subPick: 'Más de 2.5 goles (67%)',
-        xg: '0.35 — 3.10',
+        minuteStr: 'PRÓXIMO • 20:30',
+        venue: 'Múnich • Allianz Arena',
+        statusText: 'VIERNES',
+        statusColor: 'text-blue-400',
+        home: { name: 'Bayern Múnich', sub: 'Alemania • Múnich', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/9823.png' },
+        away: { name: '1. FC Köln', sub: 'Alemania • Colonia', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8722.png' },
+        keyPick: 'Bayern Múnich gana (1) (78%)',
+        subPick: 'Más de 2.5 goles (68%)',
+        xg: '2.70 — 0.80',
         dbScore: 94,
-        iaReading: 'Victoria clara de Ecuador Sub-17 (2)',
-        p1: 4.0, px: 10.0, p2: 86.0, best1X2: '2',
-        expl1: 'La Mini Tri cuenta con una generación destacada de Independiente del Valle y LDU con gran velocidad.',
-        expl2: 'Nueva Caledonia es el combinado más modesto del grupo y padece serios desajustes en el retroceso.',
+        iaReading: 'Victoria bávara con goles: Bayern gana (1)',
+        p1: 78.0, px: 14.0, p2: 8.0, best1X2: '1',
+        expl1: 'En el Allianz Arena el poderío goleador bávaro con Harry Kane, Musiala y Sané impone un ritmo implacable.',
+        expl2: 'Colonia concede más de 1.8 xG promedio de visita y el Más de 2.5 goles alcanza el 68%.',
         goles: [
-          { name: 'Más de 2.5 goles', prob: 67, color: 'bg-emerald-400', note: 'Diferencial de calidad' },
-          { name: 'Más de 3.5 goles', prob: 48, color: 'bg-amber-500', note: 'Opción con valor' },
-          { name: 'Menos de 4.5 goles', prob: 74, color: 'bg-emerald-400', note: 'Margen de seguridad' }
+          { name: 'Más de 1.5 goles', prob: 86, color: 'bg-emerald-400', note: 'Máxima certeza' },
+          { name: 'Más de 2.5 goles', prob: 68, color: 'bg-emerald-400', note: 'Tendencia goleadora' },
+          { name: 'Menos de 4.5 goles', prob: 72, color: 'bg-emerald-400', note: 'Margen de seguridad' }
         ],
-        btts: { si: 32, no: 68 },
-        dobleOpt: { name: 'X2 (Ecuador o Empate)', prob: 96 },
-        dnb: 'Ecuador DNB: 96% • N. Caledonia: 4%',
-        corners: '9.0',
-        cards: '2.8',
-        shotsTotal: '22.0 tiros totales',
-        shotsSplit: 'N. Caledonia: 1.5 a puerta • Ecuador: 8.6 a puerta',
-        fouls: 'N. Caledonia ~14.0 • Ecuador ~9.0',
-        pos: 'N. Caledonia 28% - 72% Ecuador'
+        btts: { si: 53, no: 47 },
+        dobleOpt: { name: '1X (Bayern o Empate)', prob: 92 },
+        dnb: 'Bayern DNB: 90% • Köln: 10%',
+        corners: '10.5',
+        cards: '3.4',
+        shotsTotal: '24.0 tiros totales',
+        shotsSplit: 'Bayern: 8.1 a puerta • Köln: 2.9 a puerta',
+        fouls: 'Bayern ~8.0 • Köln ~12.0',
+        pos: 'Bayern 66% - 34% Köln'
+      },
+      // 10. ATHLETIC CLUB VS RCD ESPANYOL (LA LIGA)
+      {
+        id: 'athletic_espanyol',
+        day: 'friday',
+        isLive: false,
+        isClub: true,
+        league: 'La Liga España',
+        dateStr: 'Viernes 20 Nov',
+        time: '21:00',
+        score: 'VS',
+        minuteStr: 'PRÓXIMO • 21:00',
+        venue: 'Bilbao • San Mamés',
+        statusText: 'VIERNES',
+        statusColor: 'text-blue-400',
+        home: { name: 'Athletic Club', sub: 'España • Bilbao', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8315.png' },
+        away: { name: 'RCD Espanyol', sub: 'España • Barcelona', flag: 'https://images.fotmob.com/image_resources/logo/teamlogo/8558.png' },
+        keyPick: 'Athletic o Empate (1X) (86%)',
+        subPick: 'Menos de 3.5 goles (75%)',
+        xg: '1.75 — 0.75',
+        dbScore: 91,
+        iaReading: 'Athletic Club o Empate (1X)',
+        p1: 62.0, px: 24.0, p2: 14.0, best1X2: '1X',
+        expl1: 'San Mamés es un fortín. Los hermanos Williams y Sancet generan alta presión ofensiva.',
+        expl2: 'Espanyol plantea bloque bajo replegado buscando el contragolpe: Menos de 3.5 goles al 75%.',
+        goles: [
+          { name: 'Menos de 3.5 goles', prob: 75, color: 'bg-emerald-400', note: 'Línea de alta solidez' },
+          { name: 'Más de 1.5 goles', prob: 74, color: 'bg-emerald-400', note: 'Ritmo favorable' },
+          { name: 'Menos de 2.5 goles', prob: 54, color: 'bg-amber-500', note: 'Opción táctica' }
+        ],
+        btts: { si: 46, no: 54 },
+        dobleOpt: { name: '1X (Athletic o Empate)', prob: 86 },
+        dnb: 'Athletic DNB: 81% • Espanyol: 19%',
+        corners: '9.5',
+        cards: '4.6',
+        shotsTotal: '20.0 tiros totales',
+        shotsSplit: 'Athletic: 5.8 a puerta • Espanyol: 2.8 a puerta',
+        fouls: 'Athletic ~13.0 • Espanyol ~14.0',
+        pos: 'Athletic 59% - 41% Espanyol'
       }
     ];
 
@@ -966,7 +966,7 @@
       const titleEl = document.getElementById('section-title');
       const counterEl = document.getElementById('match-counter');
       if (titleEl) {
-        titleEl.innerHTML = "<span>📅</span> PARTIDOS JUEVES (19 NOV)";
+        titleEl.innerHTML = "<span>📅</span> PARTIDOS PRÓXIMOS (10)";
       }
       if (counterEl) {
         counterEl.innerText = `${filtered.length} Partidos`;
